@@ -1,0 +1,191 @@
+---
+title: "Mastering Tailwind CSS: From Basics to Advanced Patterns"
+excerpt: "Deep dive into Tailwind CSS utility-first approach, custom configurations, component patterns, and performance optimization techniques."
+date: "2024-02-08"
+tags: ["CSS", "Tailwind", "Design", "Frontend"]
+featured: true
+coverImage: "/images/tailwind-css-mastery.jpg"
+author:
+  name: "Sarah Chen"
+  bio: "UI/UX engineer and design systems advocate. Loves crafting beautiful, accessible interfaces."
+  avatar: "/images/author-sarah-chen.jpg"
+  twitter: "sarahchen_ui"
+  github: "sarahchen"
+---
+
+# Mastering Tailwind CSS: From Basics to Advanced Patterns
+
+Tailwind CSS has transformed how developers approach styling. Instead of writing custom CSS, you compose utilities directly in your HTML — and once it clicks, you'll never want to go back.
+
+## Why Utility-First?
+
+Traditional CSS approaches often lead to:
+
+- Naming fatigue (what do I call this button?)
+- Specificity wars
+- Dead CSS that's hard to remove
+- Context switching between HTML and CSS files
+
+Tailwind solves these by keeping styles co-located with markup.
+
+## Core Concepts
+
+### The Utility Classes
+
+Every Tailwind class maps to a specific CSS property:
+
+```html
+<div class="flex items-center justify-between p-4 bg-white rounded-lg shadow">
+  <h2 class="text-xl font-semibold text-gray-900">Card Title</h2>
+  <span class="text-sm text-gray-500">Subtitle</span>
+</div>
+```
+
+### Responsive Design
+
+Tailwind uses a mobile-first breakpoint system:
+
+```html
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+  <!-- Stacks on mobile, 2 cols on tablet, 3 on desktop -->
+</div>
+```
+
+### Dark Mode
+
+Enable dark mode with the `dark:` variant:
+
+```html
+<div class="bg-white dark:bg-gray-900 text-gray-900 dark:text-white">
+  Content that adapts to color scheme
+</div>
+```
+
+## Custom Configuration
+
+Extend Tailwind's defaults in `tailwind.config.ts`:
+
+```typescript
+import type { Config } from 'tailwindcss';
+
+const config: Config = {
+  content: ['./app/**/*.{ts,tsx}', './components/**/*.{ts,tsx}'],
+  darkMode: 'class',
+  theme: {
+    extend: {
+      colors: {
+        brand: {
+          50: '#eef2ff',
+          500: '#6366f1',
+          900: '#312e81',
+        },
+      },
+      fontFamily: {
+        sans: ['Inter', 'system-ui', 'sans-serif'],
+        mono: ['JetBrains Mono', 'monospace'],
+      },
+      typography: {
+        DEFAULT: {
+          css: {
+            maxWidth: '70ch',
+          },
+        },
+      },
+    },
+  },
+  plugins: [require('@tailwindcss/typography')],
+};
+
+export default config;
+```
+
+## Component Patterns
+
+### The `cn` Utility
+
+Combine conditional classes cleanly:
+
+```typescript
+import { clsx } from 'clsx';
+import { twMerge } from 'tailwind-merge';
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
+}
+```
+
+### Reusable Button Component
+
+```tsx
+interface ButtonProps {
+  variant?: 'primary' | 'secondary' | 'ghost';
+  size?: 'sm' | 'md' | 'lg';
+}
+
+const variants = {
+  primary: 'bg-indigo-600 text-white hover:bg-indigo-700',
+  secondary: 'bg-gray-100 text-gray-900 hover:bg-gray-200',
+  ghost: 'text-gray-600 hover:bg-gray-100',
+};
+
+const sizes = {
+  sm: 'px-3 py-1.5 text-sm',
+  md: 'px-4 py-2 text-base',
+  lg: 'px-6 py-3 text-lg',
+};
+
+export function Button({ variant = 'primary', size = 'md', ...props }) {
+  return (
+    <button
+      className={cn(
+        'rounded-lg font-medium transition-colors focus:outline-none focus:ring-2',
+        variants[variant],
+        sizes[size]
+      )}
+      {...props}
+    />
+  );
+}
+```
+
+## Performance Tips
+
+### Purging Unused Styles
+
+Tailwind automatically removes unused styles in production. Ensure your `content` config covers all template files:
+
+```typescript
+content: [
+  './app/**/*.{js,ts,jsx,tsx,mdx}',
+  './components/**/*.{js,ts,jsx,tsx,mdx}',
+  './content/**/*.{md,mdx}',
+],
+```
+
+### JIT Mode
+
+Just-In-Time mode (now default) generates styles on-demand, enabling:
+
+- Arbitrary values: `w-[347px]`, `text-[#1a1a1a]`
+- Complex variants: `hover:first:text-indigo-600`
+- Faster build times
+
+## Advanced Patterns
+
+### CSS Variables with Tailwind
+
+```css
+:root {
+  --color-primary: 99 102 241; /* indigo-500 in RGB */
+}
+```
+
+```html
+<div class="bg-[rgb(var(--color-primary))]">
+  Dynamic theming
+</div>
+```
+
+## Conclusion
+
+Tailwind CSS rewards investment. The initial learning curve pays off with dramatically faster development, consistent design systems, and maintainable codebases. Start with the basics, learn the configuration system, and gradually adopt advanced patterns as your needs grow.

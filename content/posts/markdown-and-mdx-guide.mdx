@@ -1,0 +1,196 @@
+---
+title: "The Complete Guide to Markdown and MDX"
+excerpt: "Everything you need to know about Markdown syntax, MDX components, and how to build a powerful content authoring experience for your blog or documentation site."
+date: "2024-03-20"
+tags: ["Markdown", "MDX", "Content", "Documentation"]
+featured: false
+coverImage: "/images/markdown-mdx-complete-guide.jpg"
+author:
+  name: "Sarah Chen"
+  bio: "UI/UX engineer and design systems advocate. Loves crafting beautiful, accessible interfaces."
+  avatar: "/images/author-sarah-chen.jpg"
+  twitter: "sarahchen_ui"
+  github: "sarahchen"
+---
+
+# The Complete Guide to Markdown and MDX
+
+Markdown has become the universal language for content on the web. MDX takes it further by letting you embed React components directly in your content. Together, they create a powerful authoring experience.
+
+## Markdown Basics
+
+### Headings
+
+Use `#` symbols for headings:
+
+```markdown
+# H1 — Page Title
+## H2 — Section
+### H3 — Subsection
+#### H4 — Detail
+```
+
+### Text Formatting
+
+```markdown
+**Bold text** and *italic text*
+~~Strikethrough~~ and `inline code`
+> Blockquotes for emphasis
+```
+
+### Lists
+
+Ordered and unordered lists:
+
+```markdown
+- Item one
+- Item two
+  - Nested item
+  - Another nested
+
+1. First step
+2. Second step
+3. Third step
+```
+
+### Links and Images
+
+```markdown
+[Link text](https://example.com)
+![Alt text](/images/photo.jpg)
+```
+
+### Tables
+
+```markdown
+| Column 1 | Column 2 | Column 3 |
+|----------|----------|----------|
+| Cell 1   | Cell 2   | Cell 3   |
+| Cell 4   | Cell 5   | Cell 6   |
+```
+
+## Code Blocks
+
+Fenced code blocks with language syntax highlighting:
+
+````markdown
+```javascript
+function greet(name) {
+  return `Hello, ${name}!`;
+}
+```
+````
+
+Supported languages include: `javascript`, `typescript`, `python`, `rust`, `go`, `bash`, `css`, `html`, `json`, `yaml`, and many more.
+
+## Frontmatter
+
+YAML frontmatter at the top of your file provides metadata:
+
+```yaml
+---
+title: "My Post Title"
+date: "2024-01-15"
+tags: ["react", "typescript"]
+author:
+  name: "Jane Doe"
+  avatar: "/images/jane.jpg"
+---
+```
+
+## MDX: Markdown + JSX
+
+MDX lets you import and use React components:
+
+```mdx
+import { Chart } from './Chart';
+import { Callout } from './Callout';
+
+# My Data Analysis
+
+Here's the data visualized:
+
+<Chart data={salesData} />
+
+<Callout type="warning">
+  This data is from Q1 2024 only.
+</Callout>
+```
+
+### Custom Components
+
+You can override default HTML elements with custom components:
+
+```tsx
+const components = {
+  h1: ({ children }) => (
+    <h1 className="text-4xl font-bold text-gray-900">{children}</h1>
+  ),
+  code: ({ children, className }) => (
+    <code className={cn('font-mono text-sm', className)}>
+      {children}
+    </code>
+  ),
+  blockquote: ({ children }) => (
+    <blockquote className="border-l-4 border-indigo-500 pl-4 italic">
+      {children}
+    </blockquote>
+  ),
+};
+```
+
+## Processing Pipeline
+
+A typical MDX processing pipeline:
+
+```typescript
+import { serialize } from 'next-mdx-remote/serialize';
+import rehypeHighlight from 'rehype-highlight';
+import rehypeSlug from 'rehype-slug';
+import rehypeAutolinkHeadings from 'rehype-autolink-headings';
+
+const mdxSource = await serialize(content, {
+  mdxOptions: {
+    rehypePlugins: [
+      rehypeHighlight,
+      rehypeSlug,
+      [rehypeAutolinkHeadings, { behavior: 'wrap' }],
+    ],
+  },
+  parseFrontmatter: true,
+});
+```
+
+## Table of Contents Generation
+
+Extract headings from markdown to build a TOC:
+
+```typescript
+export function extractHeadings(content: string) {
+  const headingRegex = /^(#{1,3})\s+(.+)$/gm;
+  const headings = [];
+  let match;
+  
+  while ((match = headingRegex.exec(content)) !== null) {
+    headings.push({
+      level: match[1].length,
+      text: match[2],
+      id: slugify(match[2]),
+    });
+  }
+  
+  return headings;
+}
+```
+
+## Best Practices
+
+1. **Keep frontmatter consistent** — use a schema and validate it
+2. **Use relative image paths** — easier to manage and deploy
+3. **Write semantic headings** — one H1 per document, logical hierarchy
+4. **Test code examples** — broken code in docs erodes trust
+5. **Add alt text to images** — accessibility matters
+
+## Conclusion
+
+Markdown and MDX strike the perfect balance between simplicity and power. Authors get a clean writing experience, while developers can enrich content with interactive components. It's the foundation of modern content-driven sites.

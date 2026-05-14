@@ -1,0 +1,39 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Syntax highlighting — GitHub-style */
+@import 'highlight.js/styles/github.css' layer(base);
+
+/* Dark mode syntax highlighting override */
+.dark .prose pre {
+  @apply bg-gray-900;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-gray-300 dark:bg-gray-700 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-gray-400 dark:bg-gray-600;
+}
+
+/* Focus styles */
+:focus-visible {
+  @apply outline-2 outline-offset-2 outline-indigo-500;
+}
+
+/* TOC active state */
+.toc-active {
+  @apply text-indigo-600 dark:text-indigo-400 font-medium;
+}

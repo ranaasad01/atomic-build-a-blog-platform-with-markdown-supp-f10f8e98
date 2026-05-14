@@ -1,0 +1,191 @@
+---
+title: "TypeScript Best Practices for Modern React Applications"
+excerpt: "Essential TypeScript patterns, type safety techniques, and architectural decisions that will make your React codebase more robust and maintainable."
+date: "2024-03-01"
+tags: ["TypeScript", "React", "Best Practices"]
+featured: false
+coverImage: "/images/typescript-react-best-practices.jpg"
+author:
+  name: "Alex Morgan"
+  bio: "Full-stack developer passionate about React, TypeScript, and building great developer experiences."
+  avatar: "/images/author-alex-morgan.jpg"
+  twitter: "alexmorgan_dev"
+  github: "alexmorgan"
+---
+
+# TypeScript Best Practices for Modern React Applications
+
+TypeScript has become the de facto standard for large-scale React applications. But simply adding TypeScript to your project isn't enough — you need to use it effectively to get the full benefits.
+
+## Strict Mode is Non-Negotiable
+
+Always enable strict mode in `tsconfig.json`:
+
+```json
+{
+  "compilerOptions": {
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true
+  }
+}
+```
+
+These settings catch entire categories of bugs at compile time.
+
+## Type Your Props Explicitly
+
+Avoid using `any` for component props. Define explicit interfaces:
+
+```typescript
+// Bad
+function UserCard(props: any) { ... }
+
+// Good
+interface UserCardProps {
+  user: {
+    id: string;
+    name: string;
+    email: string;
+    role: 'admin' | 'user' | 'guest';
+  };
+  onEdit?: (id: string) => void;
+  className?: string;
+}
+
+function UserCard({ user, onEdit, className }: UserCardProps) {
+  return (
+    <div className={className}>
+      <h3>{user.name}</h3>
+      <p>{user.email}</p>
+      {onEdit && (
+        <button onClick={() => onEdit(user.id)}>Edit</button>
+      )}
+    </div>
+  );
+}
+```
+
+## Discriminated Unions for State
+
+Model loading states with discriminated unions:
+
+```typescript
+type AsyncState<T> =
+  | { status: 'idle' }
+  | { status: 'loading' }
+  | { status: 'success'; data: T }
+  | { status: 'error'; error: Error };
+
+function useUser(id: string) {
+  const [state, setState] = useState<AsyncState<User>>({ status: 'idle' });
+  
+  // TypeScript narrows the type in each branch
+  if (state.status === 'success') {
+    console.log(state.data.name); // TypeScript knows data exists
+  }
+}
+```
+
+## Generic Components
+
+Write reusable components with generics:
+
+```typescript
+interface ListProps<T> {
+  items: T[];
+  renderItem: (item: T, index: number) => React.ReactNode;
+  keyExtractor: (item: T) => string;
+  emptyMessage?: string;
+}
+
+function List<T>({ items, renderItem, keyExtractor, emptyMessage }: ListProps<T>) {
+  if (items.length === 0) {
+    return <p>{emptyMessage ?? 'No items found'}</p>;
+  }
+  
+  return (
+    <ul>
+      {items.map((item, index) => (
+        <li key={keyExtractor(item)}>
+          {renderItem(item, index)}
+        </li>
+      ))}
+    </ul>
+  );
+}
+```
+
+## Utility Types
+
+Leverage TypeScript's built-in utility types:
+
+```typescript
+interface User {
+  id: string;
+  name: string;
+  email: string;
+  password: string;
+  createdAt: Date;
+}
+
+// For API responses — omit sensitive fields
+type PublicUser = Omit<User, 'password'>;
+
+// For update forms — all fields optional
+type UpdateUserInput = Partial<Pick<User, 'name' | 'email'>>;
+
+// For creating — omit auto-generated fields
+type CreateUserInput = Omit<User, 'id' | 'createdAt'>;
+```
+
+## Type Guards
+
+Write type guards for runtime safety:
+
+```typescript
+function isUser(value: unknown): value is User {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    'id' in value &&
+    'name' in value &&
+    typeof (value as User).id === 'string'
+  );
+}
+
+// Usage
+const data = await fetchUser(id);
+if (isUser(data)) {
+  console.log(data.name); // TypeScript knows it's a User
+}
+```
+
+## Const Assertions
+
+Use `as const` for literal types:
+
+```typescript
+const ROUTES = {
+  home: '/',
+  blog: '/blog',
+  about: '/about',
+} as const;
+
+type Route = typeof ROUTES[keyof typeof ROUTES];
+// type Route = "/" | "/blog" | "/about"
+```
+
+## Template Literal Types
+
+Create precise string types:
+
+```typescript
+type EventName = `on${Capitalize<string>}`;
+type CSSProperty = `${string}-${string}`;
+type ApiEndpoint = `/api/${string}`;
+```
+
+## Conclusion
+
+TypeScript's power comes from using it thoughtfully. Enable strict mode, model your domain with precise types, and use generics and utility types to reduce duplication. The upfront investment in good types pays dividends in refactoring confidence and bug prevention.
